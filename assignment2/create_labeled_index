@@ -1,0 +1,19 @@
+#!/usr/bin/python
+
+import sys
+
+from classifier import labeled_inverted_index
+from util.errors import DirectoryNotFoundError
+from util.fancy import *
+
+if len(sys.argv) <= 2:
+    print '%s[ERROR] Not enough arguments%s' % (RED, NC)
+else:
+    input_dataset = sys.argv[1]
+    output_file = sys.argv[2]
+
+    try:
+        inverted_index, doc_index = labeled_inverted_index.create(input_dataset)
+        labeled_inverted_index.save(inverted_index, doc_index, output_file)
+    except DirectoryNotFoundError:
+        print '%s[ERROR] The directory does not exist: %s%s' % (RED, input_dataset, NC)

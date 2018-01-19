@@ -1,0 +1,42 @@
+#!/usr/bin/python
+
+import sys
+from sqlite3 import DatabaseError, OperationalError
+
+import query.vector_space_model as vs
+from util.fancy import *
+
+if len(sys.argv) <= 4:
+    print '%s[ERROR] Not enough arguments%s' % (RED, NC)
+else:
+    vs.index_file = sys.argv[1]
+    try:
+        k = int(sys.argv[2])
+    except ValueError:
+        k = 0
+        print "%s[ERROR] K must be a number %s" % (RED, NC)
+        exit(1)
+
+    if sys.argv[3].lower() == 'y':
+        show_scores = True
+    elif sys.argv[3].lower() == 'n':
+        show_scores = False
+    else:
+        show_scores = False
+        print "%s[ERROR] scores parameter must be either y or n %s" % (RED, NC)
+        exit(1)
+
+    query = " ".join(sys.argv[4:])
+
+    try:
+        result = vs.retrieve_documents(k, show_scores, query)
+        if result:
+            print ",".join(["%d(%.6f)" % (doc[0],doc[1]) if show_scores else str(doc) for doc in result])
+        else:
+            print "%sNo documents matched the query%s" % (RED, NC)
+    except OperationalError:
+        print "%s[ERROR] Tables in input database file doesn't match with supported schema of the inverted index%s" % (RED, NC)
+    except DatabaseError:
+        print "%s[ERROR] Input file is not recognized as a SQLite database file%s" % (RED, NC)
+    except:
+        print "%s[ERROR] %s%s" % (RED, sys.exc_info(), NC)

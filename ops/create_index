@@ -1,0 +1,14 @@
+#!/usr/bin/python
+
+import sys
+import re
+
+from index import inverted_index
+
+if len(sys.argv) <= 1:
+    print '[ERROR] No directory provided'
+
+input_dataset = sys.argv[1]
+idx = inverted_index.create(input_dataset)
+#output_name = re.search('/?.+/?$', input_dataset).group()
+inverted_index.save(idx, 'output.db')

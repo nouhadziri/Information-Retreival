@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import sys
+
+from index import inverted_index
+from util.fancy import *
+
+if len(sys.argv) <= 1:
+    print '%s[ERROR] No index file provided%s' % (RED, NC)
+else:
+    input_index = sys.argv[1]
+    inverted_index.print_full(input_index)

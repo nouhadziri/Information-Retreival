@@ -1,0 +1,42 @@
+#!/usr/bin/python
+
+import sys
+from os.path import isfile, exists
+from sqlite3 import DatabaseError, OperationalError
+from classifier.knn import NearestNeighborClassifier
+from util.fancy import *
+
+if len(sys.argv) <= 3:
+    print '%s[ERROR] Not enough arguments%s' % (RED, NC)
+else:
+    input_index = sys.argv[1]
+
+    try:
+        k = int(sys.argv[2])
+    except ValueError:
+        k = 0
+        print "%s[ERROR] K must be a number %s" % (RED, NC)
+        exit(1)
+
+    query_file = sys.argv[3]
+    if not exists(query_file):
+        print '%s[ERROR] The query document does not exist: %s%s' % (RED, query_file, NC)
+        exit(1)
+    elif not isfile(query_file):
+        print '%s[ERROR] The query document must be a file: %s%s' % (RED, query_file, NC)
+        exit(1)
+
+    try:
+        result = NearestNeighborClassifier(input_index, k).classify(query_file)
+
+        if result:
+            for clazz in result:
+                print clazz
+        else:
+            print "%sNo label found for the query%s" % (RED, NC)
+    except OperationalError:
+        print "%s[ERROR] Tables in input database file doesn't match with supported schema of the inverted index%s" % (RED, NC)
+    except DatabaseError:
+        print "%s[ERROR] Input file is not recognized as a SQLite database file%s" % (RED, NC)
+    except:
+        print "%s[ERROR] %s%s" % (RED, sys.exc_info()[1], NC)

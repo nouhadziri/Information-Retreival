@@ -1,0 +1,27 @@
+#!/usr/bin/python
+
+import sys
+from sqlite3 import DatabaseError, OperationalError
+import query.boolean_queries as boolean_queries
+from util.fancy import *
+
+if len(sys.argv) <= 2:
+    print '%s[ERROR] Not enough arguments%s' % (RED, NC)
+else:
+    input_index = sys.argv[1]
+    query = " ".join(sys.argv[2:])
+    boolean_queries.index_file = input_index
+    try:
+        result = boolean_queries.evaluate_boolean_query(boolean_queries.parse(query))
+
+        if result:
+            for doc in result:
+                print doc
+        else:
+            print "%sNo documents matched the query%s" % (RED, NC)
+    except OperationalError:
+        print "%s[ERROR] Tables in input database file doesn't match with supported schema of the inverted index%s" % (RED, NC)
+    except DatabaseError:
+        print "%s[ERROR] Input file is not recognized as a SQLite database file%s" % (RED, NC)
+    except:
+        print "%s[ERROR] %s%s" % (RED, sys.exc_info()[1], NC)

@@ -1,0 +1,43 @@
+#!/usr/bin/python
+
+import sys
+from sqlite3 import DatabaseError, OperationalError
+import scorer.ranked_boolean_retrieval as retriever
+from scorer.parser import ParseError
+from util.fancy import *
+
+if len(sys.argv) <= 4:
+    print '%s[ERROR] Not enough arguments%s' % (RED, NC)
+else:
+    input_index = sys.argv[1]
+
+    try:
+        k = int(sys.argv[2])
+    except ValueError:
+        k = 0
+        print "%s[ERROR] K must be a number %s" % (RED, NC)
+        exit(1)
+
+    try:
+        g = float(sys.argv[3])
+    except ValueError:
+        g = 0
+        print "%s[ERROR] g must be a number %s" % (RED, NC)
+        exit(1)
+
+    query = " ".join(sys.argv[4:])
+
+    try:
+        result = retriever.evaluate_query(input_index, k, g, query)
+
+        if result:
+            for (doc, score) in result:
+                print 'doc_%d'%doc,score
+        else:
+            print "%sNo documents matched the query%s" % (RED, NC)
+    except OperationalError:
+        print "%s[ERROR] Tables in input database file doesn't match with supported schema of the inverted index%s" % (RED, NC)
+    except DatabaseError:
+        print "%s[ERROR] Input file is not recognized as a SQLite database file%s" % (RED, NC)
+    except ParseError:
+        print "%s[ERROR] %s%s" % (RED, sys.exc_info()[1], NC)
